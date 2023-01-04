@@ -1,0 +1,23 @@
+version: "3.5"
+
+services:
+  app:
+    image: ubuntu:latest
+    build:
+      context: .
+    shm_size: '8gb'
+    volumes:
+      - .:/app
+    command: ["tail","-f","/dev/null"]
+
+  logs:
+    image: ubuntu:latest
+    build:
+      context: .
+    shm_size: '4gb'
+    volumes:
+      - ${LOG_DIR}:/logs
+    ports:
+      - ${TENSORBOARD_PORT}:${TENSORBOARD_PORT}
+    command: ["tensorboard","--logdir","/logs","--port",$TENSORBOARD_PORT, "--host","0.0.0.0"] 
+

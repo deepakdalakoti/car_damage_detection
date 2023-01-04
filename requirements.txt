@@ -1,0 +1,7 @@
+torch
+torchvision
+jupyterlab
+tensorboard
+black
+isort
+pylint
