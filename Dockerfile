@@ -18,5 +18,7 @@ RUN apt-get update && apt-get install -y git
 
 RUN pip install -U 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'
 
+RUN export PYTHONPATH=/app:/app/dependencies
+
 CMD tail -f /dev/null
 

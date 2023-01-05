@@ -1,17 +1,26 @@
-version: "3.5"
+version: "3.8"
+
+x-environment-vars: &shared_environment
+  - OMP_NUM_THREADS: ${OMP_NUM_THREADS:-8}
+  - MKL_NUM_THREADS: ${MKL_NUM_THREADS:-8}
+
 
 services:
   app:
     image: ubuntu:latest
+    container_name: app
     build:
       context: .
     shm_size: '8gb'
     volumes:
       - .:/app
     command: ["tail","-f","/dev/null"]
+    environment:
+      <<: *shared_environment
 
   logs:
     image: ubuntu:latest
+    container_name: logs
     build:
       context: .
     shm_size: '4gb'
@@ -20,4 +29,6 @@ services:
     ports:
       - ${TENSORBOARD_PORT}:${TENSORBOARD_PORT}
     command: ["tensorboard","--logdir","/logs","--port",$TENSORBOARD_PORT, "--host","0.0.0.0"] 
+    environment:
+      <<: *shared_environment
 

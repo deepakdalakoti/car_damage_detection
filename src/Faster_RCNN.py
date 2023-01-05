@@ -5,8 +5,13 @@ import dependencies.utils as utils
 from dependencies.engine import evaluate, train_one_epoch
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torch.utils.tensorboard import SummaryWriter
-
+import numpy as np
+from packaging import version
 from src.dataset import CarDataset
+
+if version.parse(np.__version__) >= version.parse("1.24.0"):
+    np.float = np.float32
+
 
 writer = SummaryWriter("./logs")
 
@@ -81,4 +86,6 @@ def train(data_dir):
         # update the learning rate
         lr_scheduler.step()
         # evaluate on the test dataset
-        evaluate(model, data_loader_val, device=device)
+        metrics_eval, _ = evaluate(model, data_loader_val, device=device)
+        #print(metrics_eval.coco_eval['bbox'].stats)
+        writer.add_scalar("Average precision (eval)", metrics_eval.coco_eval['bbox'].stats[0], epoch)
