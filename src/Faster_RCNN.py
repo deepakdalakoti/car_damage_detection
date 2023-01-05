@@ -5,10 +5,13 @@ import dependencies.utils as utils
 from dependencies.engine import evaluate, train_one_epoch
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torch.utils.tensorboard import SummaryWriter
-
+from packaging import version
 from src.dataset import CarDataset
-
+import numpy as np
 writer = SummaryWriter("./logs")
+
+if version.parse(np.__version__) >= version.parse("1.24.0"):
+    np.float = np.float32
 
 def get_transform(train):
     transforms = []
@@ -57,6 +60,7 @@ def train(data_dir):
 
     # get the model using our helper function
     model = get_instance_object_model(num_classes)
+    print(device)
     # move model to the right device
     model.to(device)
 
