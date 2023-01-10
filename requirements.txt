@@ -5,3 +5,5 @@ tensorboard
 black
 isort
 pylint
+transformers
+scipy

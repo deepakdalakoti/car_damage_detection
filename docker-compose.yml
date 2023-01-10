@@ -3,7 +3,7 @@ version: "3.8"
 x-environment-vars: &shared_environment
   - OMP_NUM_THREADS: ${OMP_NUM_THREADS:-8}
   - MKL_NUM_THREADS: ${MKL_NUM_THREADS:-8}
-
+  - APPUSER: ${APPUSER:? username is not set}
 
 services:
   app:
@@ -11,9 +11,11 @@ services:
     container_name: app
     build:
       context: .
+      args:
+        APPUSER: ${APPUSER:?username is not set}
     shm_size: '8gb'
     volumes:
-      - .:/app
+      - .:/home/${APPUSER}/app
     command: ["tail","-f","/dev/null"]
     deploy:
       resources:
@@ -30,12 +32,30 @@ services:
     container_name: logs
     build:
       context: .
+      args:
+        APPUSER: ${APPUSER:?username is not set}
     shm_size: '4gb'
     volumes:
-      - ${LOG_DIR}:/logs
+      - ${LOG_DIR}:/home/${APPUSER}/logs
     ports:
       - ${TENSORBOARD_PORT}:${TENSORBOARD_PORT}
     command: ["tensorboard","--logdir","/logs","--port",$TENSORBOARD_PORT, "--host","0.0.0.0"] 
+    environment:
+      <<: *shared_environment
+
+  notebook:
+    image: ubuntu:latest
+    container_name: notebook
+    build:
+      context: .
+      args:
+        APPUSER: ${APPUSER:?username is not set}
+    shm_size: '4gb'
+    volumes:
+      - .:/home/${APPUSER}/app
+    ports:
+      - ${NOTEBOOK_PORT}:${NOTEBOOK_PORT}
+    command: ["jupyter","notebook","--ip","0.0.0.0","--port",$NOTEBOOK_PORT] 
     environment:
       <<: *shared_environment
 
